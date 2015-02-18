@@ -48,7 +48,7 @@ class ManagerCommand extends Command {
     $validates  = $this->option('validates');
     $validator  = $this->option('validator');
 
-    $toReplace = compact('ns','fill','model','validates', 'validator');
+    $toReplace = compact('name', 'ns','fill','model','validates', 'validator');
 
     $this->generator->replace($toReplace)->save($ns, $name);
 
