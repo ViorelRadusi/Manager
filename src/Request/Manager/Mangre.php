@@ -8,18 +8,19 @@ abstract class Mangre implements ManagerInterface {
 
   public function __construct(StorageGuard $guard) {
 
-    $this->instance  = App::make($this->model);
+    $this->model    = $this->setModel();
+    $this->instance = App::make($this->model);
+
+    $this->validates && $this->makeValidation($guard);
 
     method_exists($this, "afterConstruct") && $this->afterConstruct();
-
-    $this->validates && this->makeValidation($guard);
   }
 
   public function find($id, $relationships = []) {
     return $this->instance->with($relationships)->find($id);
   }
 
-  public function all($order = 'id', $get = null , $paginate = false ) {
+  public function all($order = 'id', $get = null, $paginate = false) {
     $collection = $this->instance->orderBy($order);
     return ($paginate) ? $collection->paginate($paginate, $get) : $collection->get($get);
   }
@@ -30,7 +31,7 @@ abstract class Mangre implements ManagerInterface {
   }
 
   public function update($input, $id) {
-    $this->guard && $this->guard->checkStore($input);
+    $this->guard && $this->guard->checkUpdate($input, $id);
 
     $entry = $this->find($id);
     $entry->update($this->getData($input, $id));
@@ -53,6 +54,12 @@ abstract class Mangre implements ManagerInterface {
     property_exists($this, "validator") ?
       $this->guard->setValidator($this->validator, false) :
       $this->guard->setValidator($this->model    , true);
+  }
+
+  protected function setModel(){
+    $split = explode('\\',get_called_class());
+    $subclass =  end($split);
+    return str_replace("Manager", "",$subclass);
   }
 
   private function init($input , $id = null) {
@@ -83,4 +90,3 @@ abstract class Mangre implements ManagerInterface {
   }
 
 }
-

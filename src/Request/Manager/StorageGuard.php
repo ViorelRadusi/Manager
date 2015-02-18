@@ -1,11 +1,9 @@
 <?php namespace Request\Manager;
 
 use  Request\Manager\Exceptions\ValidatorException,
-     App, Redirect;
+     Config, App, Redirect;
 
 class StorageGuard {
-
-  protected $validatorPath = "\ACME\Admin\Validators\{{CLS_NAME}}Validator";
 
   protected $validator ;
 
@@ -14,7 +12,7 @@ class StorageGuard {
     $this->errorResponse();
 
     $this->validator = ($useDefault)
-      ? App::make(str_replace("{{CLS_NAME}}", $className, $this->validatorPath))
+      ? App::make(Config::get("manager::vSpace") . $className . "Validator")
       : App::make($className);
   }
 
