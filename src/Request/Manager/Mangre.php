@@ -4,12 +4,17 @@ use Request\Manager\Interfaces\ManagerInterface, App;
 
 abstract class Mangre implements ManagerInterface {
 
-  protected $instance, $guard, $validates = true;
+  protected $instance, $selectedModel, $guard, $fillable, $validates = true;
 
   public function __construct(StorageGuard $guard) {
 
-    $this->model    = $this->setModel();
-    $this->instance = App::make($this->model);
+    $this->selectedModel = $this->setModel();
+    property_exists($this, "model") && $this->selectedModel = $this->model;
+
+    $this->instance      = App::make($this->selectedModel);
+
+    $this->fillable      = $this->instance->getFillable();
+    property_exists($this, "fill")  && $this->fillable = $this->fill;
 
     $this->validates && $this->makeValidation($guard);
 
@@ -48,31 +53,34 @@ abstract class Mangre implements ManagerInterface {
     return $this->instance->count();
   }
 
-  private function makeValidation($guard){
-    $this->guard = $guard;
-
-    property_exists($this, "validator") ?
-      $this->guard->setValidator($this->validator, false) :
-      $this->guard->setValidator($this->model    , true);
-  }
-
   protected function setModel(){
     $split = explode('\\',get_called_class());
     $subclass =  end($split);
     return str_replace("Manager", "",$subclass);
   }
 
+  private function makeValidation($guard){
+    $this->guard = $guard;
+
+    property_exists($this, "validator") ?
+      $this->guard->setValidator($this->validator, false) :
+      $this->guard->setValidator($this->selectedModel    , true);
+  }
+
   private function init($input , $id = null) {
-    foreach($input as $key => $val)
-      $this->$key = $val;
+    foreach($input as $key => $val) $this->$key = $val;
 
     if(property_exists($this, 'transforms'))
       foreach($this->transforms as $key => $val)
-        is_string($key) ? $this->$key = $this->callback($id, $key, $input , $val) : $this->initField($id, $val, $input);
+        is_string($key)
+          ? $this->$key = $this->callback($id, $key, $input , $val)
+          : $this->initField($id, $val, $input);
   }
 
   private function initField($id, $field, $input) {
-    return $this->$field = (isset($input[$field]) && !empty($input[$field]) ) ? $input[$field] : ( ($id) ?  $this->find($id)->$field : null);
+    return $this->$field = (isset($input[$field]) && !empty($input[$field]) )
+      ? $input[$field]
+      : (($id) ? $this->find($id)->$field : null);
   }
 
   private function callback($id, $prop, $input, $fn) {
@@ -83,7 +91,7 @@ abstract class Mangre implements ManagerInterface {
 
   private function getData($input, $id = null) {
     $this->init($input, $id);
-    foreach($this->returned as $prop)
+    foreach($this->fillable as $prop)
       $accepted[$prop] = isset($this->$prop) ? $this->$prop : null;
 
     return $accepted;
