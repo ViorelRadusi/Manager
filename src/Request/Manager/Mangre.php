@@ -4,18 +4,16 @@ use Request\Manager\Interfaces\ManagerInterface, App;
 
 abstract class Mangre implements ManagerInterface {
 
-  protected $instance, $guard;
+  protected $instance, $guard, $validates = true;
 
   public function __construct(StorageGuard $guard) {
 
     $this->instance  = App::make($this->model);
 
-    if(method_exists($this, "afterConstruct")) $this->afterConstruct();
+    method_exists($this, "afterConstruct") && $this->afterConstruct();
 
-    if (property_exists($this, "validates") && $this->validates) $this->makeValidation($guard);
-
+    $this->validates && this->makeValidation($guard);
   }
-
 
   public function find($id, $relationships = []) {
     return $this->instance->with($relationships)->find($id);
@@ -55,8 +53,6 @@ abstract class Mangre implements ManagerInterface {
     property_exists($this, "validator") ?
       $this->guard->setValidator($this->validator, false) :
       $this->guard->setValidator($this->model    , true);
-
-
   }
 
   private function init($input , $id = null) {
