@@ -20,12 +20,17 @@ class ManagerServiceProvider extends ServiceProvider {
   public function register()
   {
     $this->app->bind('manager', 'Request\Manager\ManagerCreator');
-    //
+    $this->bindCommands();
+
   }
 
   public function boot()
   {
+
     $this->package('request/manager');
+
+
+
     AliasLoader::getInstance()
       ->alias("Manager", "Request\Manager\Facades\Manager");
   }
@@ -38,6 +43,14 @@ class ManagerServiceProvider extends ServiceProvider {
   public function provides()
   {
     return array();
+  }
+
+
+  private function bindCommands(){
+
+    $this->app->bind('myCommands',"\Request\Manager\Commands\ManagerCommand");
+    $this->commands([ 'myCommands']);
+
   }
 
 }
