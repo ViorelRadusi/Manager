@@ -6,6 +6,9 @@ class {{NAME}}Validator extends Validator {
 
   protected static $messages = [];
 
+  protected static $update   = [];
+
+
   public function check($id) {
     return [
      {{RULES}}
