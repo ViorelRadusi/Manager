@@ -20,7 +20,7 @@ class ValidatorGenerator{
     $rules = str_replace("=", " => \"", $rules);
     $rules = preg_replace('/([a-zA-Z]+)\s/i', '"$1" ', $rules);
     $rules = str_replace(";", "\",\n\t", $rules);
-    $rules .= '"';
+    $rules .=  ($rules) ? '"' : '' ;
 
     $this->tpl = str_replace( "{{RULES}}", $rules, $this->tpl);
 

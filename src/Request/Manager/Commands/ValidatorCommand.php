@@ -42,14 +42,14 @@ class ValidatorCommand extends Command {
    */
   public function fire() {
     $names      = $this->argument('name');
-    $ns         = $this->option('ns');
+    $v_ns         = $this->option('v_ns');
     $rules      = $this->option('rules');
     $namesArray = explode(":", $names);
 
     foreach($namesArray as $name){
       $name  = ucfirst(trim($name));
-      $toReplace = compact('name', 'ns');
-      $this->generator->replace($toReplace)->setRules($rules)->save($ns, $name);
+      $toReplace = compact('name', 'v_ns');
+      $this->generator->replace($toReplace)->setRules($rules)->save($v_ns, $name);
       $this->info("{$name}Validator Created");
     }
 
@@ -77,7 +77,7 @@ class ValidatorCommand extends Command {
   protected function getOptions()
   {
     return array(
-      ['ns'     , null  , InputOption::VALUE_OPTIONAL, 'Set Other namespace' , Config::get("manager::vSpace")],
+      ['v_ns'   , null  , InputOption::VALUE_OPTIONAL, 'Set Other namespace' , Config::get("manager::vSpace")],
       ['rules'  , null  , InputOption::VALUE_OPTIONAL, 'Add the rules' , ""],
     );
   }

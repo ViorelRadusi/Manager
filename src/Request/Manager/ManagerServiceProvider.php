@@ -50,8 +50,9 @@ class ManagerServiceProvider extends ServiceProvider {
 
     $this->app->bind('manager',"\Request\Manager\Commands\ManagerCommand");
     $this->app->bind('validator',"\Request\Manager\Commands\ValidatorCommand");
+    $this->app->bind('full',"\Request\Manager\Commands\ManagerFullCommand");
 
-    $this->commands([ 'manager','validator']);
+    $this->commands([ 'manager','validator', 'full']);
   }
 
 }
