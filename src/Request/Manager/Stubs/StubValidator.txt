@@ -1,4 +1,4 @@
-<?php namespace {{NS}};
+<?php namespace {{V_NS}};
 
 use Request\Manager\Validator;
 
