@@ -1,0 +1,16 @@
+<?php namespace {{NS}};
+
+use Request\Manager\Validator;
+
+class {{NAME}}Validator extends Validator {
+
+  protected static $messages = [];
+
+  public function check($id) {
+    return [
+     {{RULES}}
+    ];
+  }
+
+
+}
