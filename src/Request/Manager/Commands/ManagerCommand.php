@@ -41,19 +41,23 @@ class ManagerCommand extends Command {
    * @return mixed
    */
   public function fire() {
-    $name       = $this->argument('name');
+    $names      = $this->argument('name');
     $ns         = $this->option('ns');
     $fill       = $this->option('fill');
     $model      = $this->option('model');
     $validates  = $this->option('validates');
     $validator  = $this->option('validator');
+    $doc        = $this->option('doc');
+    $namesArray = explode(":", $names);
 
-    $toReplace = compact('name', 'ns','fill','model','validates', 'validator');
+    foreach($namesArray as $name){
+      $name  = ucfirst(trim($name));
+      $toReplace = compact('name', 'ns','fill','model','validates', 'validator');
+      $this->generator->printDoc($doc)->replace($toReplace)->save($ns, $name);
+      $this->info("{$name}Manager Created");
+    }
 
-    $this->generator->replace($toReplace)->save($ns, $name);
-
-
-    $this->info("{$name}Manager Created");
+    $this->info("Finished!");
 
   }
 
@@ -77,11 +81,12 @@ class ManagerCommand extends Command {
   protected function getOptions()
   {
     return array(
-      ['ns'       , null, InputOption::VALUE_OPTIONAL, 'Set Other namespace' , Config::get("manager::mSpace")],
-      ['fill'     , null, InputOption::VALUE_OPTIONAL, 'Set fillable fields' , ""],
-      ['model'    , null, InputOption::VALUE_OPTIONAL, 'Set the model' , "User"],
-      ['validates', null, InputOption::VALUE_OPTIONAL, 'Set if this should validate' , "false"],
-      ['validator', null, InputOption::VALUE_OPTIONAL, 'Set what validator to use' , "\\SomeNamespace\\NewValidator"],
+      ['ns'         , null  , InputOption::VALUE_OPTIONAL, 'Set Other namespace' , Config::get("manager::mSpace")],
+      ['fill'       , null  , InputOption::VALUE_OPTIONAL, 'Set fillable fields' , ""],
+      ['model'      , null  , InputOption::VALUE_OPTIONAL, 'Set the model' , "User"],
+      ['doc'        , null  , InputOption::VALUE_NONE    , 'Outputs the comments to override defaults' ],
+      ['validates'  , null  , InputOption::VALUE_OPTIONAL, 'Set if this should validate' , "false"],
+      ['validator'  , null  , InputOption::VALUE_OPTIONAL, 'Set what validator to use' , "\\SomeNamespace\\NewValidator"],
     );
   }
 

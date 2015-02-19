@@ -4,8 +4,10 @@ class ManagerGenerator{
 
   public $tpl;
 
-  public function __construct(){
-    $this->tpl = (file_get_contents(__DIR__ . "/../Stubs/StubManager.txt"));
+  public function printDoc($doc){
+    $doc = ($doc) ? "Expand" : "Compact";
+    $this->tpl = file_get_contents(__DIR__ .  "/../Stubs/StubManager{$doc}.txt");
+    return $this;
   }
 
   public function replace(array $replacements){
@@ -16,10 +18,9 @@ class ManagerGenerator{
   }
 
   public function save($where, $name){
-
     $path = app_path() . "/" . str_replace("\\", "/" , $where) . "/";
     file_put_contents($path . $name . "Manager.php", $this->tpl);
-
+    $this->tpl = (file_get_contents(__DIR__ . "/../Stubs/StubManagerExpand.txt"));
   }
 
 }

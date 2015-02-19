@@ -56,7 +56,7 @@ class {{NAME}}Manager extends Mangre {
    */
    // protected $validator = "{{VALIDATOR}}";
 
-  /**
+   /**
    * afterConstruct
    *
    * @access protected

@@ -31,12 +31,12 @@ abstract class Mangre implements ManagerInterface {
   }
 
   public function create($input) {
-    $this->guard && $this->guard->checkStore($input);
+    $this->guard && $this->guard->check($input);
     return  $this->instance->create($this->getData($input));
   }
 
   public function update($input, $id) {
-    $this->guard && $this->guard->checkUpdate($input, $id);
+    $this->guard && $this->guard->check($input, $id);
 
     $entry = $this->find($id);
     $entry->update($this->getData($input, $id));

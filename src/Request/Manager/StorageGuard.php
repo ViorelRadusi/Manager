@@ -16,13 +16,10 @@ class StorageGuard {
       : App::make($className);
   }
 
-  public function checkStore($input){
-      $this->validator->checkStore($input);
+  public function check($input, $id = ''){
+      $this->validator->isValid($input, $id);
   }
 
-  public function checkUpdate($input, $id){
-      $this->validator->checkUpdate($input, $id);
-  }
 
   private function errorResponse() {
     App::error(function(ValidatorException $e) {

@@ -8,14 +8,10 @@ abstract class Validator implements ValidatorInterface {
 
   protected static $messages = [];
 
-  public function checkStore($input) {
-    $v = V::make($input, static::store(), static::$messages);
+  public function isValid($input, $id) {
+    $v = V::make($input, static::check($id), static::$messages);
     if($v->fails()) throw new ValidatorException($v->messages());
   }
 
-  public function checkUpdate($input, $id) {
-    $v = V::make($input, static::update($id), static::$messages);
-    if($v->fails()) throw new ValidatorException($v->messages());
-  }
 
 }
