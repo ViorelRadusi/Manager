@@ -53,7 +53,7 @@ abstract class Mangre implements ManagerInterface {
     return $this->instance->count();
   }
 
-  protected function setModel(){
+  private function setModel(){
     $split = explode('\\',get_called_class());
     $subclass =  end($split);
     return str_replace("Manager", "",$subclass);
