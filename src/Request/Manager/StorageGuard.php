@@ -12,7 +12,7 @@ class StorageGuard {
     $this->errorResponse();
 
     $this->validator = ($useDefault)
-      ? App::make(Config::get("manager::vSpace") . "\\" . $className . "Validator")
+      ? App::make(Config::get("manager::vSpace") . $className . "Validator")
       : App::make($className);
   }
 
