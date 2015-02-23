@@ -84,9 +84,24 @@ abstract class Mangre implements ManagerInterface {
   }
 
   private function callback($id, $prop, $input, $fn) {
-    list($class, $method) = explode("@", $fn);
+   
     $val = $this->initField($id, $prop, $input);
-    return ($input[$prop]) ? $this->$prop = $class::$method($val) : $val;
+
+    if(strpos("@", $fn)){
+
+      list($class, $method) = explode("@", $fn);
+
+      return ($input[$prop]) ? $this->$prop = $class::$method($val) : $val;
+    }
+
+    if(strpos("#", $fn)){
+
+      list($class, $method) = explode("#", $fn);
+
+      return ($input[$prop]) ? $this->$prop = App::make($class)->$method($val) : $val;
+    }
+
+  
   }
 
   private function getData($input, $id = null) {
