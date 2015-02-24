@@ -4,9 +4,10 @@ use Request\Manager\Interfaces\ManagerInterface, App;
 
 abstract class Mangre implements ManagerInterface {
 
-  protected $instance, $selectedModel, $guard, $fillable, $validates = true;
+  protected $instance, $selectedModel, $guard, $fillable, $validates = true, $transformArgs = [];
 
   public function __construct(StorageGuard $guard) {
+    method_exists($this, "beforeConstruct") && $this->beforeConstruct();
 
     $this->selectedModel = $this->setModel();
     property_exists($this, "model") && $this->selectedModel = $this->model;
@@ -17,6 +18,8 @@ abstract class Mangre implements ManagerInterface {
     property_exists($this, "fill")  && $this->fillable = $this->fill;
 
     $this->validates && $this->makeValidation($guard);
+
+    $this->transformArgs = (object) $this->transformArgs;
 
     method_exists($this, "afterConstruct") && $this->afterConstruct();
   }
@@ -31,21 +34,37 @@ abstract class Mangre implements ManagerInterface {
   }
 
   public function create($input) {
+    method_exists($this, "beforeCreate") && $this->beforeCreate($input);
+
     $this->guard && $this->guard->check($input);
-    return  $this->instance->create($this->getData($input));
+    $created = $this->instance->create($this->getData($input));
+
+    method_exists($this, "afterCreate") && $this->afterCreate($input, $created);
+    return $created;
+
   }
 
   public function update($input, $id) {
+
     $this->guard && $this->guard->check($input, $id);
 
     $entry = $this->find($id);
+    method_exists($this, "beforeUpdate") && $this->beforeUpdate($input, $entry);
+
     $entry->update($this->getData($input, $id));
+
+    method_exists($this, "afterUpdate") && $this->afterUpdate($input, $entry);
     return $entry;
   }
 
   public function delete($id) {
     $entry = $this->find($id);
+
+    method_exists($this, "beforeDelete") && $this->beforeDelete($entry);
+
     $entry->delete();
+
+    method_exists($this, "afterDelete") && $this->afterDelete($entry);
     return $entry;
   }
 
@@ -78,31 +97,32 @@ abstract class Mangre implements ManagerInterface {
   }
 
   private function initField($id, $field, $input) {
-    return $this->$field = (isset($input[$field]) && !empty($input[$field]) )
+    return $this->$field = (array_key_exists($field, $input) && !empty($input[$field]) )
       ? $input[$field]
       : (($id) ? $this->find($id)->$field : null);
   }
 
   private function callback($id, $prop, $input, $fn) {
-   
     $val = $this->initField($id, $prop, $input);
 
-    if(strpos("@", $fn)){
-
+    if(strpos($fn , "@")){
       list($class, $method) = explode("@", $fn);
-
-      return ($input[$prop]) ? $this->$prop = $class::$method($val) : $val;
+      if(empty(get_object_vars($this->transformArgs)))
+        return (array_key_exists($prop, $input) && $input[$prop]) ? $this->$prop = $class::$method($val) : $val;
+      else
+        return (array_key_exists($prop, $input) && $input[$prop]) ? $this->$prop = $class::$method($val, $this->transformArgs) : $val;
     }
 
-    if(strpos("#", $fn)){
-
+    if(strpos($fn , "#")){
       list($class, $method) = explode("#", $fn);
+      if(empty(get_object_vars($this->transformArgs)))
+        return (array_key_exists($prop, $input) && $input[$prop]) ? $this->$prop = App::make($class)->$method($val) : $val;
+      else
+        return (array_key_exists($prop, $input) && $input[$prop]) ? $this->$prop = App::make($class)->$method($val, $this->transformArgs) : $val;
 
-      return ($input[$prop]) ? $this->$prop = App::make($class)->$method($val) : $val;
     }
-
-  
   }
+
 
   private function getData($input, $id = null) {
     $this->init($input, $id);
