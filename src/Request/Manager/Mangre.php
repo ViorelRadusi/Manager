@@ -1,12 +1,12 @@
 <?php namespace Request\Manager;
 
-use Request\Manager\Interfaces\ManagerInterface, App;
+use Request\Manager\Interfaces\ManagerInterface, App, Route;
 
 abstract class Mangre implements ManagerInterface {
 
-  protected $instance, $selectedModel, $guard, $fillable, $validates = true, $transformArgs = [];
+  protected $root = null, $chain = null, $instance, $selectedModel, $guard, $fillable, $validates = true, $transforms = [], $transformArgs = [];
 
-  public function __construct(StorageGuard $guard) {
+  public function __construct(StorageGuard $guard){
     method_exists($this, "beforeConstruct") && $this->beforeConstruct();
 
     $this->selectedModel = $this->setModel();
@@ -24,12 +24,54 @@ abstract class Mangre implements ManagerInterface {
     method_exists($this, "afterConstruct") && $this->afterConstruct();
   }
 
+  public function setRoot(array $rootInfo){
+
+    $params = Route::current()->parameters();
+
+    $class = array_shift($rootInfo);
+    $this->instance = App::make($class);
+
+    $this->chain = $rootInfo;
+    foreach($rootInfo as $order => $chain)
+      $this->instance = ($order % 2 == 0)
+          ?  $this->instance->find($params[$chain])
+          :  $this->instance->$chain();
+
+    $this->root = App::make($class)->find($params[$this->chain[0]]);
+
+    return $this;
+  }
+
+  public function chain($find){
+    $params = Route::current()->parameters();
+    $segment = $this->root;
+    foreach($this->chain as $order => $chain){
+      $this->segment = ($order % 2 == 0)
+          ?  $segment->find($params[$chain])
+          :  $segment->$chain();
+      if($chain == $find && $order % 2 == 1) return $segment;
+    }
+
+    return null;
+  }
+
+  public function getRoot(){
+    return $this->root;
+  }
+
+  public function getInstance(){
+    return $this->instance;
+  }
+
   public function find($id, $relationships = []) {
-    return $this->instance->with($relationships)->find($id);
+    return ($this->root)
+      ?  $this->instance->with($relationships)->get()->find($id)
+      :  $this->instance->with($relationships)->find($id);
   }
 
   public function all($order = 'id', $get = null, $paginate = false) {
     $collection = $this->instance->orderBy($order);
+    return ( $collection->get($get));
     return ($paginate) ? $collection->paginate($paginate, $get) : $collection->get($get);
   }
 
@@ -41,7 +83,6 @@ abstract class Mangre implements ManagerInterface {
 
     method_exists($this, "afterCreate") && $this->afterCreate($input, $created);
     return $created;
-
   }
 
   public function update($input, $id) {
@@ -82,22 +123,24 @@ abstract class Mangre implements ManagerInterface {
     $this->guard = $guard;
 
     property_exists($this, "validator") ?
-      $this->guard->setValidator($this->validator, false) :
-      $this->guard->setValidator($this->selectedModel    , true);
+      $this->guard->setValidator($this->validator     , false):
+      $this->guard->setValidator($this->selectedModel , true);
   }
 
   private function init($input , $id = null) {
-    foreach($input as $key => $val) $this->$key = $val;
 
-    if(property_exists($this, 'transforms'))
-      foreach($this->transforms as $key => $val)
-        is_string($key)
-          ? $this->$key = $this->callback($id, $key, $input , $val)
-          : $this->initField($id, $val, $input);
+    foreach($this->transforms as $key => $val)
+      is_string($key)
+        ? $this->$key = $this->callback($id, $key, $input , $val)
+        : $this->initField($id, $val, $input);
+
+    foreach(array_except($input, array_keys($this->transforms)) as $key => $val) $this->$key = $val;
   }
 
   private function initField($id, $field, $input) {
-    return $this->$field = (array_key_exists($field, $input) && !empty($input[$field]) )
+    if(property_exists($this, $field)) return $this->$field;
+
+    return $this->$field = (array_key_exists($field, $input) && !empty($input[$field]))
       ? $input[$field]
       : (($id) ? $this->find($id)->$field : null);
   }
@@ -117,12 +160,12 @@ abstract class Mangre implements ManagerInterface {
       list($class, $method) = explode("#", $fn);
       if(empty(get_object_vars($this->transformArgs)))
         return (array_key_exists($prop, $input) && $input[$prop]) ? $this->$prop = App::make($class)->$method($val) : $val;
-      else
-        return (array_key_exists($prop, $input) && $input[$prop]) ? $this->$prop = App::make($class)->$method($val, $this->transformArgs) : $val;
+      else{
+        return  (array_key_exists($prop, $input) && $input[$prop]) ? $this->$prop = App::make($class)->$method($val, $this->transformArgs) : $val;
+      }
 
     }
   }
-
 
   private function getData($input, $id = null) {
     $this->init($input, $id);
