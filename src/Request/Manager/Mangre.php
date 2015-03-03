@@ -65,14 +65,18 @@ abstract class Mangre implements ManagerInterface {
 
   public function find($id, $relationships = []) {
     return ($this->root)
-      ?  $this->instance->with($relationships)->get()->find($id)
+      ?  $this->instance->find($id)
       :  $this->instance->with($relationships)->find($id);
   }
 
-  public function all($order = 'id', $get = null, $paginate = false) {
-    $collection = $this->instance->orderBy($order);
-    return ( $collection->get($get));
-    return ($paginate) ? $collection->paginate($paginate, $get) : $collection->get($get);
+  public function orderBy($col, $direction = "ASC") {
+     $this->instance = $this->instance->orderBy($col, $direction);
+     return $this;
+  }
+
+  public function all($get = null, $paginate = false) {
+    if($this->root) $get = ['*'];
+    return ($paginate) ? $this->instance->paginate($paginate, $get) : $this->instance->get($get);
   }
 
   public function create($input) {
@@ -111,6 +115,10 @@ abstract class Mangre implements ManagerInterface {
 
   public function count() {
     return $this->instance->count();
+  }
+
+  public function first() {
+    return $this->instance->first();
   }
 
   private function setModel(){
