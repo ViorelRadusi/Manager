@@ -74,7 +74,10 @@ abstract class Mangre implements ManagerInterface {
 
     $get = ($this->root) ? ['*'] : $get;
 
-    $this->instance = is_array($order) ? $this->instance->orderBy($order[0], $order[1]) : $this->instance->orderBy($order);
+    if($order)
+      $this->instance = is_array($order) ?
+        $this->instance->orderBy($order[0], $order[1]) :
+        $this->instance->orderBy($order);
 
     return ($paginate) ? $this->instance->paginate($paginate, $get) : $this->instance->get($get);
   }
