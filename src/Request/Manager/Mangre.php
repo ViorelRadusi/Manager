@@ -70,6 +70,11 @@ abstract class Mangre implements ManagerInterface {
   }
 
 
+  public function with(array $relationships){
+    $this->instance = $this->instance->with($relationships);
+    return $this;
+  }
+
   public function all($order = null, $get = ['*'], $paginate = false) {
 
     $get = ($this->root) ? ['*'] : $get;
