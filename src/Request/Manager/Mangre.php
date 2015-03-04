@@ -69,13 +69,12 @@ abstract class Mangre implements ManagerInterface {
       :  $this->instance->with($relationships)->find($id);
   }
 
-  public function orderBy($col, $direction = "ASC") {
-     $this->instance = $this->instance->orderBy($col, $direction);
-     return $this;
-  }
 
-  public function all($get = null, $paginate = false) {
-    if($this->root) $get = ['*'];
+  public function all($order, $get = ['*'], $paginate = false) {
+
+    is_array($order) ? $this->instance->orderBy($order[0], $order[1]) : $this->instance->orderBy($order);
+
+    $this->instance = $this->instance->orderBy($col, $direction);
     return ($paginate) ? $this->instance->paginate($paginate, $get) : $this->instance->get($get);
   }
 
