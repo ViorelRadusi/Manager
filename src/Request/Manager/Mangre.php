@@ -65,7 +65,7 @@ abstract class Mangre implements ManagerInterface {
 
   public function find($id, $relationships = []) {
     return ($this->root)
-      ?  $this->instance->find($id)
+      ?  $this->instance->get()->find($id)
       :  $this->instance->with($relationships)->find($id);
   }
 
