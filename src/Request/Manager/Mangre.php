@@ -213,7 +213,7 @@ abstract class Mangre implements ManagerInterface {
 
   private function _findBranch($relationships = []){
       return ($this->root)
-         ?  $this->instance->get();
+         ?  $this->instance->get()
          :  $this->instance->with($relationships);
   }
 
