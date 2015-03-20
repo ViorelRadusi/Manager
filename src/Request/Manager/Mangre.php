@@ -72,12 +72,12 @@ abstract class Mangre implements ManagerInterface {
     return $this;
   }
 
-  public function onlyTrash(){
+  public function onlyTrashed(){
     $this->instance = $this->instance->onlyTrashed();
     return $this;
   }
 
-  public function withTrash(){
+  public function withTrashed(){
     $this->instance = $this->instance->withTrashed();
     return $this;
   }
