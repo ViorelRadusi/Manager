@@ -94,7 +94,7 @@ abstract class Mangre implements ManagerInterface {
     return ($paginate) ? $this->instance->paginate($paginate, $get) : $this->instance->get($get);
   }
 
-  public function create($input) {
+  public function create(array $input) {
     method_exists($this, "beforeCreate") && $this->beforeCreate($input);
 
     $this->guard && $this->guard->check($input);
@@ -104,7 +104,7 @@ abstract class Mangre implements ManagerInterface {
     return $created;
   }
 
-  public function update($input, $id) {
+  public function update(array $input, $id) {
 
     $this->guard && $this->guard->check($input, $id);
 
