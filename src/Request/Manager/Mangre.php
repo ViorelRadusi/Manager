@@ -152,7 +152,7 @@ abstract class Mangre implements ManagerInterface {
   }
 
   public function deletePermanent(){
-    $this->onlyTrash()->all()->each(function($entry){
+    $this->onlyTrashed()->all()->each(function($entry){
         $entry->forceDelete();
     });
   }
