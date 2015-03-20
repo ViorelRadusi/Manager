@@ -64,14 +64,21 @@ abstract class Mangre implements ManagerInterface {
   }
 
   public function find($id, $relationships = []) {
-    return ($this->root)
-      ?  $this->instance->get()->find($id)
-      :  $this->instance->with($relationships)->find($id);
+    return $this->_findBranch($relationships)->find($id);
   }
-
 
   public function with(array $relationships){
     $this->instance = $this->instance->with($relationships);
+    return $this;
+  }
+
+  public function onlyTrash(){
+    $this->instance = $this->instance->onlyTrashed();
+    return $this;
+  }
+
+  public function withTrash(){
+    $this->instance = $this->instance->withTrashed();
     return $this;
   }
 
@@ -129,6 +136,27 @@ abstract class Mangre implements ManagerInterface {
     return $this->instance->first();
   }
 
+  public function findWithTrash($id, $relationships = []){
+    return $this->_findBranch($relationships)->withTrashed()->find($id);
+
+  }
+
+  public function findInTrash(){
+    return $this->_findBranch($relationships)->onlyTrashed()->find($id);
+  }
+
+  public function restore($id){
+    $entry = $this->findInTrash($id);
+    $entry->restore();
+    return $entry;
+  }
+
+  public function deletePermanent(){
+    $this->onlyTrash->all()->each(function($entry){
+        $enrty->forceDelete();
+    });
+  }
+
   private function setModel(){
     $split = explode('\\',get_called_class());
     $subclass = "\\" . end($split);
@@ -181,6 +209,12 @@ abstract class Mangre implements ManagerInterface {
       }
 
     }
+  }
+
+  private function _findBranch($relationships = []){
+      return ($this->root)
+         ?  $this->instance->get();
+         :  $this->instance->with($relationships);
   }
 
   private function getData($input, $id = null) {
