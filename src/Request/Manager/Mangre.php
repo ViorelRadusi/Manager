@@ -141,7 +141,7 @@ abstract class Mangre implements ManagerInterface {
 
   }
 
-  public function findInTrash(){
+  public function findInTrash($id, $relationships = []){
     return $this->_findBranch($relationships)->onlyTrashed()->find($id);
   }
 
