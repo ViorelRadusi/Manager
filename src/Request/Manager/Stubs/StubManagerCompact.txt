@@ -8,16 +8,48 @@ class {{NAME}}Manager extends Mangre {
 
    // protected $model = "{{MODEL}}";
 
-
    // protected $transforms = ["password" => "Hash@make"];
 
+   // protected $transformsArgs = ["path" => "some/path/to/file"];
 
    // protected $validates = {{VALIDATES}};
 
    // protected $validator = "{{VALIDATOR}}";
 
+   // protected $bindManager = "['ManagerName', 'relation name function', 'passed array']";
+
    /*
-    protected function afterConstruct(){
+    protected function beforeConstruct(){
       $this->time = time();
+    }
+
+    protected function afterConstruct(){
+      // do stuff here
+    }
+
+    protected function beforeCreate($input) {
+      // do stuff here
+    }
+
+    protected function afterCreate($input, $entry) {
+      // do stuff here
+    }
+
+    protected function beforeUpdate($input, $entry) {
+      // do stuff here
+    }
+
+    protected function afterUpdate($input, $entry) {
+      // do stuff here
+    }
+
+    protected function beforeDelete($entry) {
+      // do stuff here
+    }
+
+    protected function afterDelete($entry) {
+      // do stuff here
+    }
+
    */
 }

@@ -4,7 +4,7 @@ use Request\Manager\Interfaces\ManagerInterface, App, Route;
 
 abstract class Mangre implements ManagerInterface {
 
-  protected $root = null, $chain = null, $instance, $selectedModel, $guard, $fillable, $validates = true, $transforms = [], $transformArgs = [];
+  protected $root = null, $chain = null, $instance, $selectedModel, $guard, $fillable, $validates = true, $bindManager = null, $transforms = [], $transformArgs = [];
 
   public function __construct(StorageGuard $guard){
     method_exists($this, "beforeConstruct") && $this->beforeConstruct();
@@ -23,6 +23,8 @@ abstract class Mangre implements ManagerInterface {
 
     method_exists($this, "afterConstruct") && $this->afterConstruct();
   }
+
+
 
   public function setRoot(array $rootInfo){
 
@@ -94,24 +96,42 @@ abstract class Mangre implements ManagerInterface {
     return ($paginate) ? $this->instance->paginate($paginate, $get) : $this->instance->get($get);
   }
 
+
+
   public function create(array $input) {
+
+    $data = $this->getData($input);
+
+    if(!is_null($this->bindManager))  $this->bind($this->bindManager);
+
     method_exists($this, "beforeCreate") && $this->beforeCreate($input);
 
-    $this->guard && $this->guard->check($input);
-    $created = $this->instance->create($this->getData($input));
+    $this->guard && $this->check($input);
+    $entry = $this->instance->create($data);
 
-    method_exists($this, "afterCreate") && $this->afterCreate($input, $created);
-    return $created;
+    if($this->bindManager instanceof BindedManager) $this->bindManager->create($entry);
+
+    method_exists($this, "afterCreate") && $this->afterCreate($input, $entry);
+    return $entry;
   }
 
   public function update(array $input, $id) {
 
-    $this->guard && $this->guard->check($input, $id);
+    $data = $this->getData($input, $id);
 
-    $entry = $this->find($id);
+    if(!is_null($this->bindManager))  $this->bind($this->bindManager);
+
+    $entry = in_array("SoftDeletingTrait", class_uses( get_class($this->instance)))
+      ? $this->withTrashed()->find($id)
+      : $this->find($id) ;
+
     method_exists($this, "beforeUpdate") && $this->beforeUpdate($input, $entry);
 
-    $entry->update($this->getData($input, $id));
+    $this->guard && $this->check($input, $id);
+    $entry->update($data);
+
+
+    if($this->bindManager instanceof BindedManager) $this->bindManager->update($entry);
 
     method_exists($this, "afterUpdate") && $this->afterUpdate($input, $entry);
     return $entry;
@@ -155,6 +175,10 @@ abstract class Mangre implements ManagerInterface {
     $this->onlyTrashed()->all()->each(function($entry){
         $entry->forceDelete();
     });
+  }
+
+  public function check($input){
+    $this->guard->check($input);
   }
 
   private function setModel(){
@@ -223,6 +247,14 @@ abstract class Mangre implements ManagerInterface {
       $accepted[$prop] = isset($this->$prop) ? $this->$prop : null;
 
     return $accepted;
+  }
+
+  private function bind(array $data){
+    list($manager, $relation, $args) = BindedManagerParser::parse($data);
+    if(property_exists($this, $args)) {
+      $this->bindManager = new BindedManager($manager, $relation, $this->$args);
+      $this->bindManager->check();
+    }
   }
 
 }
