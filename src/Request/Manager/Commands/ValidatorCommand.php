@@ -29,8 +29,7 @@ class ValidatorCommand extends Command {
 
   protected $generator;
 
-  public function __construct(ValidatorGenerator $generator)
-  {
+  public function __construct(ValidatorGenerator $generator) {
     $this->generator = $generator;
     parent::__construct();
   }
@@ -62,11 +61,10 @@ class ValidatorCommand extends Command {
    *
    * @return array
    */
-  protected function getArguments()
-  {
-    return array(
+  protected function getArguments() {
+    return [
       ['name', InputArgument::REQUIRED, 'The name of the Manager']
-    );
+    ];
   }
 
   /**
@@ -74,12 +72,11 @@ class ValidatorCommand extends Command {
    *
    * @return array
    */
-  protected function getOptions()
-  {
-    return array(
+  protected function getOptions() {
+    return [
       ['v_ns'   , null  , InputOption::VALUE_OPTIONAL, 'Set Other namespace' , Config::get("manager::vSpace")],
       ['rules'  , null  , InputOption::VALUE_OPTIONAL, 'Add the rules' , ""],
-    );
+    ];
   }
 
 }

@@ -1,12 +1,16 @@
 <?php namespace Request\Manager;
 
-use Request\Manager\Interfaces\ManagerInterface, App, Route;
+use Request\Manager\Interfaces\ManagerInterface,
+    Request\Manager\Exceptions\EmptyInputException,
+    App, Route;
 
-abstract class Mangre implements ManagerInterface {
+abstract class Mangre extends MangreValidation implements ManagerInterface {
 
-  protected $root = null, $chain = null, $instance, $selectedModel, $guard, $fillable, $validates = true, $bindManager = null, $transforms = [], $transformArgs = [];
+  protected $root = null, $chain = null, $instance, $selectedModel, $bindManager = null, $transforms = [], $transformArgs = [];
 
-  public function __construct(StorageGuard $guard){
+  public $fillabel;
+
+  public function __construct(StorageGuard $guard) {
     method_exists($this, "beforeConstruct") && $this->beforeConstruct();
 
     $this->selectedModel = $this->setModel();
@@ -17,17 +21,14 @@ abstract class Mangre implements ManagerInterface {
     $this->fillable      = $this->instance->getFillable();
     property_exists($this, "fill")  && $this->fillable = $this->fill;
 
-    $this->validates && $this->makeValidation($guard);
+    parent::__construct($guard);
 
     $this->transformArgs = (object) $this->transformArgs;
 
     method_exists($this, "afterConstruct") && $this->afterConstruct();
   }
 
-
-
   public function setRoot(array $rootInfo){
-
     $params = Route::current()->parameters();
 
     $class = array_shift($rootInfo);
@@ -59,6 +60,14 @@ abstract class Mangre implements ManagerInterface {
 
   public function getRoot(){
     return $this->root;
+  }
+
+  public function getBind(){
+    return $this->bindManager;
+  }
+
+  public function setBind($bind){
+    return $this->bindManager = $bind;
   }
 
   public function getInstance(){
@@ -96,30 +105,30 @@ abstract class Mangre implements ManagerInterface {
     return ($paginate) ? $this->instance->paginate($paginate, $get) : $this->instance->get($get);
   }
 
-
-
   public function create(array $input) {
 
-    $data = $this->getData($input);
+    $input = $this->sanitize($input);
 
-    if(!is_null($this->bindManager))  $this->bind($this->bindManager);
+    $data = $this->getData($input);
 
     method_exists($this, "beforeCreate") && $this->beforeCreate($input);
 
     $this->guard && $this->check($input);
     $entry = $this->instance->create($data);
 
+    if(!is_null($this->bindManager))  $this->bind($this->bindManager);
     if($this->bindManager instanceof BindedManager) $this->bindManager->create($entry);
 
     method_exists($this, "afterCreate") && $this->afterCreate($input, $entry);
     return $entry;
   }
 
+
   public function update(array $input, $id) {
 
-    $data = $this->getData($input, $id);
+    $input = $this->sanitize($input);
 
-    if(!is_null($this->bindManager))  $this->bind($this->bindManager);
+    $data = $this->getData($input, $id);
 
     $entry = in_array("SoftDeletingTrait", class_uses( get_class($this->instance)))
       ? $this->withTrashed()->find($id)
@@ -131,7 +140,8 @@ abstract class Mangre implements ManagerInterface {
     $entry->update($data);
 
 
-    if($this->bindManager instanceof BindedManager) $this->bindManager->update($entry);
+    if(!is_null($this->bindManager))  $this->bind($this->bindManager);
+    if($this->bindManager instanceof BindedManager)  $this->bindManager->update($entry);
 
     method_exists($this, "afterUpdate") && $this->afterUpdate($input, $entry);
     return $entry;
@@ -158,7 +168,6 @@ abstract class Mangre implements ManagerInterface {
 
   public function findWithTrash($id, $relationships = []){
     return $this->_findBranch($relationships)->withTrashed()->find($id);
-
   }
 
   public function findInTrash($id, $relationships = []){
@@ -177,62 +186,10 @@ abstract class Mangre implements ManagerInterface {
     });
   }
 
-  public function check($input){
-    $this->guard->check($input);
-  }
-
   private function setModel(){
     $split = explode('\\',get_called_class());
     $subclass = "\\" . end($split);
     return str_replace("Manager", "",$subclass);
-  }
-
-  private function makeValidation($guard){
-    $this->guard = $guard;
-
-    property_exists($this, "validator") ?
-      $this->guard->setValidator($this->validator     , false):
-      $this->guard->setValidator($this->selectedModel , true);
-  }
-
-  private function init($input , $id = null) {
-
-    foreach($this->transforms as $key => $val)
-      is_string($key)
-        ? $this->$key = $this->callback($id, $key, $input , $val)
-        : $this->initField($id, $val, $input);
-
-    foreach(array_except($input, array_keys($this->transforms)) as $key => $val) $this->$key = $val;
-  }
-
-  private function initField($id, $field, $input) {
-    if(property_exists($this, $field)) return $this->$field;
-
-    return $this->$field = (array_key_exists($field, $input) && !empty($input[$field]))
-      ? $input[$field]
-      : (($id) ? $this->find($id)->$field : null);
-  }
-
-  private function callback($id, $prop, $input, $fn) {
-    $val = $this->initField($id, $prop, $input);
-
-    if(strpos($fn , "@")){
-      list($class, $method) = explode("@", $fn);
-      if(empty(get_object_vars($this->transformArgs)))
-        return (array_key_exists($prop, $input) && $input[$prop]) ? $this->$prop = $class::$method($val) : $val;
-      else
-        return (array_key_exists($prop, $input) && $input[$prop]) ? $this->$prop = $class::$method($val, $this->transformArgs) : $val;
-    }
-
-    if(strpos($fn , "#")){
-      list($class, $method) = explode("#", $fn);
-      if(empty(get_object_vars($this->transformArgs)))
-        return (array_key_exists($prop, $input) && $input[$prop]) ? $this->$prop = App::make($class)->$method($val) : $val;
-      else{
-        return  (array_key_exists($prop, $input) && $input[$prop]) ? $this->$prop = App::make($class)->$method($val, $this->transformArgs) : $val;
-      }
-
-    }
   }
 
   private function _findBranch($relationships = []){
@@ -241,20 +198,23 @@ abstract class Mangre implements ManagerInterface {
          :  $this->instance->with($relationships);
   }
 
-  private function getData($input, $id = null) {
-    $this->init($input, $id);
-    foreach($this->fillable as $prop)
-      $accepted[$prop] = isset($this->$prop) ? $this->$prop : null;
+  public function bind(array $data) {
 
-    return $accepted;
-  }
-
-  private function bind(array $data){
     list($manager, $relation, $args) = BindedManagerParser::parse($data);
     if(property_exists($this, $args)) {
+
       $this->bindManager = new BindedManager($manager, $relation, $this->$args);
-      $this->bindManager->check();
+      if($this->bindManager->getManager()->isValidating()) $this->bindManager->check();
+      return $this->bindManager;
     }
+    throw new EmptyInputException($args);
   }
 
+  private function sanitize($input) {
+     return  array_map(function($entry){
+      if(is_array($entry)) return  $this->sanitize($entry);
+      return e($entry);
+    }, $input);
+
+  }
 }

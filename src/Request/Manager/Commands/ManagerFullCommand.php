@@ -29,8 +29,7 @@ class ManagerFullCommand extends Command {
 
   protected $generator;
 
-  public function __construct()
-  {
+  public function __construct() {
     parent::__construct();
   }
 
@@ -72,11 +71,10 @@ class ManagerFullCommand extends Command {
    *
    * @return array
    */
-  protected function getArguments()
-  {
-    return array(
+  protected function getArguments() {
+    return [
       ['name', InputArgument::REQUIRED, 'The name of the Manager']
-    );
+    ];
   }
 
   /**
@@ -84,9 +82,8 @@ class ManagerFullCommand extends Command {
    *
    * @return array
    */
-  protected function getOptions()
-  {
-    return array(
+  protected function getOptions() {
+    return [
       ['ns'         , null  , InputOption::VALUE_OPTIONAL, 'Set manager   namespace' , Config::get("manager::mSpace")],
       ['v_ns'       , null  , InputOption::VALUE_OPTIONAL, 'Set validator namespace' , Config::get("manager::vSpace")],
       ['fill'       , null  , InputOption::VALUE_OPTIONAL, 'Set fillable fields' , ""],
@@ -95,7 +92,7 @@ class ManagerFullCommand extends Command {
       ['validates'  , null  , InputOption::VALUE_OPTIONAL, 'Set if this should validate' , "false"],
       ['validator'  , null  , InputOption::VALUE_OPTIONAL, 'Set what validator to use' , "\\SomeNamespace\\NewValidator"],
       ['rules'      , null  , InputOption::VALUE_OPTIONAL, 'Add the rules' , ""],
-    );
+    ];
   }
 
 }
