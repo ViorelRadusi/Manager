@@ -78,7 +78,7 @@ class ManagerCommand extends Command {
    */
   protected function getOptions()
   {
-     [
+    return [
       ['ns'         , null  , InputOption::VALUE_OPTIONAL, 'Set Other namespace' , Config::get("manager::mSpace")],
       ['fill'       , null  , InputOption::VALUE_OPTIONAL, 'Set fillable fields' , ""],
       ['model'      , null  , InputOption::VALUE_OPTIONAL, 'Set the model' , "User"],
