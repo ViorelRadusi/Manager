@@ -1,7 +1,10 @@
 <?php namespace Request\Manager;
+use App;
 
 
 abstract class MangreBase {
+
+  protected $transforms = [], $transformArgs = [];
 
   public function getData($input, $id = null) {
     $this->init($input, $id);
@@ -48,5 +51,13 @@ abstract class MangreBase {
       }
 
     }
+  }
+
+  protected function sanitize($input) {
+     return  array_map(function($entry){
+      if(is_array($entry)) return  $this->sanitize($entry);
+      return e($entry);
+    }, $input);
+
   }
 }
