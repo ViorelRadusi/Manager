@@ -8,8 +8,13 @@ abstract class MangreValidation extends MangreBase {
     $this->validates && $this->makeValidation($guard);
   }
 
+<<<<<<< HEAD
   public function check($input, $id = ""){
     $this->guard->check($input, $id);
+=======
+  public function check($input){
+    $this->guard->check($input);
+>>>>>>> 2e6caaf1974795681b806c46a1a96e67d3886c2a
   }
 
   private function makeValidation($guard){

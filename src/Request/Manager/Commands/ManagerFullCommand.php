@@ -41,7 +41,11 @@ class ManagerFullCommand extends Command {
   public function fire() {
     $names      = $this->argument('name');
     $ns         = $this->option('ns');
+<<<<<<< HEAD
     $v_ns       = $this->option('v_ns');
+=======
+    $v_ns         = $this->option('v_ns');
+>>>>>>> 2e6caaf1974795681b806c46a1a96e67d3886c2a
     $fill       = $this->option('fill');
     $model      = $this->option('model');
     $validates  = $this->option('validates');

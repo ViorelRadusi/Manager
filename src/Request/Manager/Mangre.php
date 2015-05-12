@@ -15,7 +15,10 @@ abstract class Mangre extends MangreTraversal implements ManagerInterface {
 
     $this->selectedModel = $this->setModel();
     property_exists($this, "model") && $this->selectedModel = $this->model;
+<<<<<<< HEAD
     $this->listOfKeys = BindedManagerKey::getInstance();
+=======
+>>>>>>> 2e6caaf1974795681b806c46a1a96e67d3886c2a
 
     $this->instance      = App::make($this->selectedModel);
 
@@ -73,15 +76,25 @@ abstract class Mangre extends MangreTraversal implements ManagerInterface {
 
     method_exists($this, "beforeCreate") && $this->beforeCreate($input);
 
+<<<<<<< HEAD
     $this->setBindInput("Create", $input);
     if(!is_null($this->bindManagerCreate))  $this->bind("Create", $this->bindManagerCreate);
+=======
+    $this->setBindInput($input);
+    if(!is_null($this->bindManager))  $this->bind($this->bindManager);
+>>>>>>> 2e6caaf1974795681b806c46a1a96e67d3886c2a
 
     $this->guard && $this->check($input);
     $entry = $this->instance->create($data);
 
+<<<<<<< HEAD
     if(!is_null($this->bindManagerCreate))
       foreach($this->bindManagerCreate as $manager){
         if($manager  instanceof BindedManager)  $manager->create($entry);
+=======
+    foreach($this->bindManager as $manager){
+      if($manager  instanceof BindedManager)  $manager->create($entry);
+>>>>>>> 2e6caaf1974795681b806c46a1a96e67d3886c2a
     }
 
     method_exists($this, "afterCreate") && $this->afterCreate($input, $entry);
@@ -102,17 +115,27 @@ abstract class Mangre extends MangreTraversal implements ManagerInterface {
 
     method_exists($this, "beforeUpdate") && $this->beforeUpdate($input, $entry);
 
+<<<<<<< HEAD
     $this->setBindInput("Update", $input);
     if(!is_null($this->bindManagerUpdate))  $this->bind("Update", $this->bindManagerUpdate, $entry);
+=======
+    $this->setBindInput($input);
+    if(!is_null($this->bindManager))  $this->bind($this->bindManager);
+>>>>>>> 2e6caaf1974795681b806c46a1a96e67d3886c2a
 
     $this->guard && $this->check($input, $id);
     $entry->update($data);
 
 
 
+<<<<<<< HEAD
     if(!is_null($this->bindManagerUpdate))
       foreach($this->bindManagerUpdate as $manager) {
         if($manager  instanceof BindedManager)  $manager->update($entry);
+=======
+    foreach($this->bindManager as $manager){
+      if($manager  instanceof BindedManager)  $manager->update($entry);
+>>>>>>> 2e6caaf1974795681b806c46a1a96e67d3886c2a
     }
 
     method_exists($this, "afterUpdate") && $this->afterUpdate($input, $entry);
@@ -138,6 +161,7 @@ abstract class Mangre extends MangreTraversal implements ManagerInterface {
     return $this->instance->first();
   }
 
+<<<<<<< HEAD
   public function findWithTrash($id, $relationships = []) {
     return $this->_findBranch($relationships)->withTrashed()->find($id);
   }
@@ -147,18 +171,37 @@ abstract class Mangre extends MangreTraversal implements ManagerInterface {
   }
 
   public function restore($id) {
+=======
+  public function findWithTrash($id, $relationships = []){
+    return $this->_findBranch($relationships)->withTrashed()->find($id);
+  }
+
+  public function findInTrash($id, $relationships = []){
+    return $this->_findBranch($relationships)->onlyTrashed()->find($id);
+  }
+
+  public function restore($id){
+>>>>>>> 2e6caaf1974795681b806c46a1a96e67d3886c2a
     $entry = $this->findInTrash($id);
     $entry->restore();
     return $entry;
   }
 
+<<<<<<< HEAD
   public function deletePermanent() {
+=======
+  public function deletePermanent(){
+>>>>>>> 2e6caaf1974795681b806c46a1a96e67d3886c2a
     $this->onlyTrashed()->all()->each(function($entry){
         $entry->forceDelete();
     });
   }
 
+<<<<<<< HEAD
   private function setModel() {
+=======
+  private function setModel(){
+>>>>>>> 2e6caaf1974795681b806c46a1a96e67d3886c2a
     $split = explode('\\',get_called_class());
     $subclass = "\\" . end($split);
     return str_replace("Manager", "",$subclass);
@@ -170,8 +213,11 @@ abstract class Mangre extends MangreTraversal implements ManagerInterface {
          :  $this->instance->with($relationships);
   }
 
+<<<<<<< HEAD
   public function arr($obj) {
     return json_decode(json_encode($obj), true);
   }
 
+=======
+>>>>>>> 2e6caaf1974795681b806c46a1a96e67d3886c2a
 }
