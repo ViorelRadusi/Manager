@@ -1,0 +1,69 @@
+<?php namespace {{NS}};
+
+use Request\Manager\Mangre;
+
+class {{NAME}}Manager extends Mangre {
+
+  /**
+   * fill
+   *
+   * @var string
+   * @access protected
+   * defaults to the $fillable array from the model
+   * change to only fill specific fields on create and update
+   */
+   // protected $fill = [{{FILL}}];
+
+  /**
+   * model
+   *
+   * @var string
+   * @access protected
+   * defaults to the this class name without the `Manager` string, eg: UserManager outputs User
+   * result should be a class Model
+   * change to use a different Model
+   */
+   // protected $model = "{{MODEL}}";
+
+
+  /**
+   * transforms
+   * populate the arrray with fileds that are not required for updating a model  eg: password, image_url,
+   * if array is key => value than the key is the field and the value is a callback that alters the fields in some way eg: password => Hash@make
+   * @var mixed
+   * @access protected
+   */
+   // protected $transforms = ["password" => "Hash@make"];
+
+
+  /**
+   * validates
+   *
+   * @var mixed
+   * @access protected
+   * defaults to true
+   * change to false to skip the validator
+   */
+   // protected $validates = {{VALIDATES}};
+
+  /**
+   * validator
+   *
+   * @var string
+   * @access protected
+   * will search a Validator Class in the namespace set in the config file + name of the model  + Validator , eg: \ACME\Validators\UserValidator
+   * change to use a different Validator (with the namespace)
+   */
+   // protected $validator = "{{VALIDATOR}}";
+
+   /**
+   * afterConstruct
+   *
+   * @access protected
+   * @attach extra data to this class
+   * will run after the parent constructor finishes
+   *
+    protected function afterConstruct(){
+      $this->time = time();
+   */
+}

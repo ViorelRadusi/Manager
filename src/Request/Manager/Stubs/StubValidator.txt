@@ -1,0 +1,19 @@
+<?php namespace {{V_NS}};
+
+use Request\Manager\Validator;
+
+class {{NAME}}Validator extends Validator {
+
+  protected static $messages = [];
+
+  protected static $update   = [];
+
+
+  public function check($id) {
+    return [
+     {{RULES}}
+    ];
+  }
+
+
+}
