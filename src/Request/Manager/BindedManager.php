@@ -4,7 +4,6 @@ use  Request\Manager\Exceptions\ArgumentNotArrayException;
 
 class BindedManager {
 
-<<<<<<< HEAD
   public $name, $args, $position = null, $filter, $relation, $manager, $parentEntry;
 
   public function __construct($name, $relation, $args,$type, $position, $entry = null) {
@@ -21,20 +20,6 @@ class BindedManager {
 
     $this->filter   =   $this->manager->getData($this->args, $update_id);
     $this->manager->setBindInput($type, $this->args);
-=======
-  public $name, $args, $position, $filter, $relation, $manager, $parentEntry;
-
-  public function __construct($name, $relation, $args, $position) {
-    if(!is_array($args)) throw new  ArgumentNotArrayException($name, $args);
-    $this->name     = $name;
-    $this->relation = $relation;
-    $this->args     = $args;
-    $this->position = $position;
-    $this->filter   = $this->cleanArgs($this->args);
-    $this->manager  = (new ManagerCreator)->make($this->name);
-    $this->manager->getData($this->args);
-    $this->manager->setBindInput($this->filterData());
->>>>>>> 2e6caaf1974795681b806c46a1a96e67d3886c2a
 
   }
 
@@ -54,7 +39,6 @@ class BindedManager {
     return $this->manager->check($this->args);
   }
 
-<<<<<<< HEAD
   public function create($parentEntry) {
     $args = json_decode(json_encode($this->args));
 
@@ -114,48 +98,6 @@ class BindedManager {
        $newBind  = $this->manager->bind($which, $bind, $relation);
        $this->manager->setBind($which, $newBind);
      }
-=======
-  public function create($entry) {
-
-   $filter = $this->filterData();
-   $entry = $entry->{$this->relation}()->create($filter);
-   $this->chainNextManager($entry);
-
-   if(is_array($this->manager->getBind()))
-     foreach($this->manager->getBind() as $bind)
-       $bind->create($this->parentEntry);
-  }
-
-  public function update($entry) {
-   $entryRelation = ($this->position)? $entry->{$this->relation}->find($this->position) : $entry->{$this->relation};
-
-   $filter = $this->filterData();
-
-   $entry->{$this->relation}()->update($filter);
-   $this->chainNextManager($entryRelation);
-
-   if(is_array($this->manager->getBind()))
-     foreach($this->manager->getBind() as $bind)
-       $bind->update($this->parentEntry);
-  }
-
-  private function filterData() {
-     $filter = [];
-     foreach($this->manager->fillable as $value)
-      if(array_key_exists($value, $this->filter))  $filter[$value] =  $this->filter[$value];
-     return $filter;
-  }
-
-  private function chainNextManager($entry) {
-   $this->parentEntry = $this->manager->find($entry->id);
-
-   $bind = $this->manager->getBind();
-
-   if(!is_null($bind)) {
-     $newBind  = $this->manager->bind($bind);
-     $this->manager->setBind($newBind);
-   }
->>>>>>> 2e6caaf1974795681b806c46a1a96e67d3886c2a
 
   }
 
