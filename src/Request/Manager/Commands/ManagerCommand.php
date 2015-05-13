@@ -47,12 +47,13 @@ class ManagerCommand extends Command {
     $validates  = $this->option('validates');
     $validator  = $this->option('validator');
     $doc        = $this->option('doc');
+    $plain      = $this->option('plain');
     $namesArray = explode(":", $names);
 
     foreach($namesArray as $name){
       $name  = ucfirst(trim($name));
       $toReplace = compact('name', 'ns','fill','model','validates', 'validator');
-      $this->generator->printDoc($doc)->replace($toReplace)->save($ns, $name);
+      $this->generator->printDoc($doc, $plain)->replace($toReplace)->save($ns, $name);
       $this->info("{$name}Manager Created");
     }
 
@@ -76,15 +77,15 @@ class ManagerCommand extends Command {
    *
    * @return array
    */
-  protected function getOptions()
-  {
+  protected function getOptions() {
     return [
       ['ns'         , null  , InputOption::VALUE_OPTIONAL, 'Set Other namespace' , Config::get("manager::mSpace")],
       ['fill'       , null  , InputOption::VALUE_OPTIONAL, 'Set fillable fields' , ""],
       ['model'      , null  , InputOption::VALUE_OPTIONAL, 'Set the model' , "User"],
       ['doc'        , null  , InputOption::VALUE_NONE    , 'Outputs the comments to override defaults' ],
+      ['plain'      , null  , InputOption::VALUE_NONE    , 'Outputs an empty manager' ],
       ['validates'  , null  , InputOption::VALUE_OPTIONAL, 'Set if this should validate' , "false"],
-      ['validator'  , null  , InputOption::VALUE_OPTIONAL, 'Set what validator to use' , "\\SomeNamespace\\NewValidator"],
+      ['validator'  , null  , InputOption::VALUE_OPTIONAL, 'Set what validator to use' , "\\\\SomeNamespace\\\\NewValidator"],
     ];
   }
 

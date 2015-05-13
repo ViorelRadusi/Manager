@@ -4,7 +4,7 @@ use App;
 
 abstract class MangreBase {
 
-  protected $transforms = [], $transformArgs = [];
+  protected $transforms = [], $transformArgs = [], $sanitizeSkip = [];
 
   public function getData($input, $id = null) {
     $this->init($input, $id);
@@ -61,9 +61,10 @@ abstract class MangreBase {
   }
 
   protected function sanitize($input) {
-     return  array_map(function($entry){
+     return  array_map(function($entry) use ($input) {
       if(is_array($entry)) return  $this->sanitize($entry);
-      return e($entry);
+      $key = array_search($entry, $input);
+      return (in_array($key, $this->sanitizeSkip)) ? $entry  : e($entry);
     }, $input);
 
   }

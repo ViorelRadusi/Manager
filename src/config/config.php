@@ -2,8 +2,9 @@
 
 return [
 
-  'mSpace'   => 'ACME\\Admin\\Managers',
+  'mSpace'        => 'ACME\\Admin\\Managers',
+  'vSpace'        => 'ACME\\Admin\\Validators',
 
-  'vSpace'   => 'ACME\\Admin\\Validators',
+  'errorResponse' => 'view' // values: view or json
 
 ];

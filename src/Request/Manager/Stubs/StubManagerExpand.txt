@@ -15,6 +15,17 @@ class {{NAME}}Manager extends Mangre {
    // protected $fill = [{{FILL}}];
 
   /**
+   * fill
+   *
+   * @var array
+   * @access protected
+   * defaults to an empty array
+   * every input passed to the manager will be sanitize using laralvels e() function, to skip some keys add them to the array
+   * an use case is CKEDITOR
+   */
+   // protected $sanitizeSkip = [];
+
+  /**
    * model
    *
    * @var string
@@ -57,13 +68,61 @@ class {{NAME}}Manager extends Mangre {
    // protected $validator = "{{VALIDATOR}}";
 
    /**
-   * afterConstruct
+   * EVENT HOOKS
    *
-   * @access protected
+   * @access public
    * @attach extra data to this class
-   * will run after the parent constructor finishes
-   *
-    protected function afterConstruct(){
+   * @params $input is the array of data passed to the manager
+   * @params $entry is the eloquent model that the manager works on
+
+    public function afterConstruct() {
       $this->time = time();
+    }
+
+    public function afterConstruct()  { }
+
+    public function beforeCreate($input) { }
+    public function afterCreate($input, $entry) { }
+
+    public function beforeUpdate($input, $entry) { }
+    public function afterUpdate($input, $entry)  { }
+
+    public function beforeDelete($entry) { }
+    public function afterDelete($entry)  { }
    */
+
+   /**
+   * BINDED MANAGERS
+
+   * @access protected
+   * @bind more managers together to insert in more tables at the same time
+   * there ar 2 variations :
+   * i) a play array
+   * ii) a  function thats returns an array
+   * need to return a set list of arrays where the key is the nextManager to bind
+     and the value is another array with 3 optional values
+     - first is the eloquent relationship
+     - second is the data .... if its a string it will try to find the data in the passed data to ma manager , if array it will use that instead
+     - third value working with a one to many relationship .. this parament is the id of the record from the many table.. must be an array  ['relation_id' => value]
+
+     protected $bindManagerCreate = [];
+     protected $bindManagerUpdate = [];
+
+     protected function bindManagerCreate($input) {
+       return [
+          "ManagerName" => ['eloquentRelationship', 'input']
+       ];
+     }
+     protected function bindManagerUpdate($input) {
+       return [
+          "ManagerName" => ['eloquentRelationship', 'input']
+       ];
+     }
+
+     public function beforeBindCreate($input, $entry) { }
+     public function afterBindCreate($input, $entry)  { }
+
+     public function beforeBindUpdate($input, $entry) { }
+     public function afterBindUpdate($input, $entry)  { }
+   **/
 }

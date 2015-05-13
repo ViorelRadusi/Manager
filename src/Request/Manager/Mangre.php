@@ -21,7 +21,7 @@ abstract class Mangre extends MangreTraversal implements ManagerInterface {
 
     $this->fillable      = $this->instance->getFillable();
     property_exists($this, "fill")  && $this->fillable = $this->fill;
-    if(is_null($this->fillable)) throw \Exception("Empty fill property");
+    if(is_null($this->fillable)) throw \EmptyFillableException("");
 
     parent::__construct($guard);
 

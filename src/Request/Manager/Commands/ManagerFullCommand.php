@@ -47,6 +47,7 @@ class ManagerFullCommand extends Command {
     $validates  = $this->option('validates');
     $validator  = $this->option('validator');
     $doc        = $this->option('doc');
+    $plain      = $this->option('plain');
     $rules      = $this->option('rules');
 
 
@@ -56,6 +57,7 @@ class ManagerFullCommand extends Command {
       '--model'     =>  $model,
       '--validates' =>  $validates,
       '--doc'       =>  $doc,
+      '--plain'     =>  $plain,
     ]);
 
     $this->call("manager:validator",['name' => $names,
@@ -88,9 +90,10 @@ class ManagerFullCommand extends Command {
       ['v_ns'       , null  , InputOption::VALUE_OPTIONAL, 'Set validator namespace' , Config::get("manager::vSpace")],
       ['fill'       , null  , InputOption::VALUE_OPTIONAL, 'Set fillable fields' , ""],
       ['model'      , null  , InputOption::VALUE_OPTIONAL, 'Set the model' , "User"],
-      ['doc'        , null  , InputOption::VALUE_NONE    , 'Outputs the comments to override defaults' ],
+      ['doc'        , null  , InputOption::VALUE_NONE    , 'Outputs the comments to override defaults'],
+      ['plain'      , null  , InputOption::VALUE_NONE    , 'Outputs  an empty manager' ],
       ['validates'  , null  , InputOption::VALUE_OPTIONAL, 'Set if this should validate' , "false"],
-      ['validator'  , null  , InputOption::VALUE_OPTIONAL, 'Set what validator to use' , "\\SomeNamespace\\NewValidator"],
+      ['validator'  , null  , InputOption::VALUE_OPTIONAL, 'Set what validator to use' , "\\\\SomeNamespace\\\\NewValidator"],
       ['rules'      , null  , InputOption::VALUE_OPTIONAL, 'Add the rules' , ""],
     ];
   }

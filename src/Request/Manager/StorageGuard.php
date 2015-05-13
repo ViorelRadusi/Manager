@@ -1,7 +1,7 @@
 <?php namespace Request\Manager;
 
 use  Request\Manager\Exceptions\ValidatorException,
-     Config, App, Redirect;
+     Config, App, Redirect, Response;
 
 class StorageGuard {
 
@@ -23,7 +23,9 @@ class StorageGuard {
 
   private function errorResponse() {
     App::error(function(ValidatorException $e) {
-        return Redirect::back()->withInput()->withErrors($e->getErrors());
+      if(Config::get("manager::errorResponse") === 'view') return Redirect::back()->withInput()->withErrors($e->getErrors());
+
+      if(Config::get("manager::errorResponse") === 'json') return Response::json($e->getErrors(), 403);
     });
 
   }
