@@ -2,6 +2,7 @@
 
 use Request\Manager\Interfaces\ManagerInterface,
     Request\Manager\Exceptions\EmptyInputException,
+    Request\Manager\Exceptions\EmptyFillableException,
     App;
 
 abstract class Mangre extends MangreTraversal implements ManagerInterface {
@@ -21,7 +22,7 @@ abstract class Mangre extends MangreTraversal implements ManagerInterface {
 
     $this->fillable      = $this->instance->getFillable();
     property_exists($this, "fill")  && $this->fillable = $this->fill;
-    if(is_null($this->fillable)) throw \EmptyFillableException("");
+    if(empty($this->fillable)) throw new EmptyFillableException();
 
     parent::__construct($guard);
 

@@ -19,7 +19,7 @@ class ManagerFullCommand extends Command {
    *
    * @var string
    */
-  protected $description = 'Creates a new Manager and a Validator for the that Manager';
+  protected $description = 'Creates a new Manager and a Validator for that Manager';
 
   /**
    * Create a new command instance.

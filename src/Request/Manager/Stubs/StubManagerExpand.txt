@@ -25,6 +25,17 @@ class {{NAME}}Manager extends Mangre {
    */
    // protected $sanitizeSkip = [];
 
+
+  /**
+   * defaults ( inspired by Rob )
+   *
+   * @var array
+   * @access protected
+   * defaults to an empty array
+   * set a default value for eny property that doesn't exist in the provided input
+   */
+   // protected $defaults = ['propertyName' => 'defaultValue'];
+
   /**
    * model
    *
@@ -66,6 +77,18 @@ class {{NAME}}Manager extends Mangre {
    * change to use a different Validator (with the namespace)
    */
    // protected $validator = "{{VALIDATOR}}";
+
+
+
+  /**
+   * errorType
+   *
+   * @var string
+   * @access protected
+   * defaults to the $configuration array
+   * change to use a different Response when validator failes
+   */
+   // protected $errorType = false; // view or json
 
    /**
    * EVENT HOOKS

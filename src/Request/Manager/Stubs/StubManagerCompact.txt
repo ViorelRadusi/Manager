@@ -4,7 +4,9 @@ use Request\Manager\Mangre;
 
 class {{NAME}}Manager extends Mangre {
 
-   // protected $fill = [{{FILL}}];
+   // protected $fill     = [{{FILL}}];
+
+   // protected $defaults = ['propertyName' => 'defaultValue'];
 
    // protected $sanitizeSkip = [];
 
@@ -16,6 +18,7 @@ class {{NAME}}Manager extends Mangre {
 
    // protected $validator = "{{VALIDATOR}}";
 
+   // protected $errorType = false; // view or json
    /**
    * EVENT HOOKS
 

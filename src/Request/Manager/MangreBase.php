@@ -4,12 +4,13 @@ use App;
 
 abstract class MangreBase {
 
-  protected $transforms = [], $transformArgs = [], $sanitizeSkip = [];
+  protected $transforms = [], $transformArgs = [], $sanitizeSkip = [], $defaults = [];
 
   public function getData($input, $id = null) {
     $this->init($input, $id);
-    foreach($this->fillable as $prop)
-      $accepted[$prop] = isset($this->$prop) ? $this->$prop : null;
+    foreach($this->fillable as $prop){
+      $accepted[$prop] = isset($this->$prop) ? $this->$prop : ( (array_key_exists($prop, $this->defaults)) ?   $this->defaults[$prop] : null);
+    }
 
     return $accepted;
   }
