@@ -10,7 +10,7 @@ abstract class Validator implements ValidatorInterface {
 
   protected static $update   = [];
 
-  public function isValid($input, $id) {
+  public function isValid($input, $id = '') {
     $v = V::make($input, array_merge(static::check($id), static::$update), static::$messages);
     if($v->fails()) throw new ValidatorException($v->messages());
   }

@@ -69,10 +69,13 @@ abstract class Mangre extends MangreTraversal implements ManagerInterface {
   public function create(array $input) {
 
     $input = $this->sanitize($input);
+    $obj = json_decode(json_encode($input));
+
+    method_exists($this, "beforeCreate") && $this->beforeCreate($obj);
+
     $data  = $this->getData($input);
 
 
-    method_exists($this, "beforeCreate") && $this->beforeCreate($input);
 
     $this->setBindInput("Create", $input);
     if(!is_null($this->bindManagerCreate))  $this->bind("Create", $this->bindManagerCreate);
@@ -85,7 +88,7 @@ abstract class Mangre extends MangreTraversal implements ManagerInterface {
         if($manager  instanceof BindedManager)  $manager->create($entry);
     }
 
-    method_exists($this, "afterCreate") && $this->afterCreate($input, $entry);
+    method_exists($this, "afterCreate") && $this->afterCreate($obj, $entry);
     return $entry;
   }
 
@@ -93,15 +96,15 @@ abstract class Mangre extends MangreTraversal implements ManagerInterface {
   public function update(array $input, $id) {
 
     $input = $this->sanitize($input);
-
-    $data = $this->getData($input, $id);
-
+    $obj = json_decode(json_encode($input));
 
     $entry = in_array("SoftDeletingTrait", class_uses( get_class($this->instance)))
       ? $this->withTrashed()->find($id)
       : $this->find($id) ;
 
-    method_exists($this, "beforeUpdate") && $this->beforeUpdate($input, $entry);
+    method_exists($this, "beforeUpdate") && $this->beforeUpdate($obj, $entry);
+
+    $data = $this->getData($input, $id);
 
     $this->setBindInput("Update", $input);
     if(!is_null($this->bindManagerUpdate))  $this->bind("Update", $this->bindManagerUpdate, $entry);
@@ -116,7 +119,7 @@ abstract class Mangre extends MangreTraversal implements ManagerInterface {
         if($manager  instanceof BindedManager)  $manager->update($entry);
     }
 
-    method_exists($this, "afterUpdate") && $this->afterUpdate($input, $entry);
+    method_exists($this, "afterUpdate") && $this->afterUpdate($obj, $entry);
     return $entry;
   }
 
