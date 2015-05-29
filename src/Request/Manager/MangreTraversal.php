@@ -6,6 +6,11 @@ abstract class MangreTraversal extends MangreBinder {
 
   protected $root = null, $chain = null;
 
+
+  public function __construct(StorageGuard $guard){
+    parent::__construct($guard);
+  }
+
   public function getRoot() {
     return $this->root;
   }

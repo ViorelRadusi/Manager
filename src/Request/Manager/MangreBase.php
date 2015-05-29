@@ -1,18 +1,34 @@
 <?php namespace Request\Manager;
-use App;
 
+use App, Request\Manager\Exceptions\EmptyFillableException;
 
 abstract class MangreBase {
 
-  protected $transforms = [], $transformArgs = [], $sanitizeSkip = [], $defaults = [];
+  protected $transforms = [], $transformArgs = [], $sanitizeSkip = [], $defaults = [], $instance;
+
+  public $fillabel = null;
+
+  public function __construct() {
+    $this->instance      = App::make($this->selectedModel);
+    $this->fillable      = $this->instance->getFillable();
+    property_exists($this, "fill")  && $this->fillable = $this->fill;
+    if(empty($this->fillable)) throw new EmptyFillableException();
+    $this->transformArgs = (object) $this->transformArgs;
+  }
 
   public function getData($input, $id = null) {
     $this->init($input, $id);
-    foreach($this->fillable as $prop){
-      $accepted[$prop] = isset($this->$prop) ? $this->$prop : ( (array_key_exists($prop, $this->defaults)) ?   $this->defaults[$prop] : null);
+    foreach($this->fillable as $prop) {
+      $accepted[$prop] = isset($this->$prop)
+        ? $this->$prop
+        : ( (array_key_exists($prop, $this->defaults)) ?   $this->defaults[$prop] : null);
     }
 
     return $accepted;
+  }
+
+  public function getInstance() {
+    return $this->instance;
   }
 
   private function init($input , $id = null) {
@@ -26,7 +42,11 @@ abstract class MangreBase {
       if(is_int($key)) $fullAssocTransform[$val] = $val;
       else $fullAssocTransform[$key] = $val;
     }
-    foreach(array_except($input, $fullAssocTransform) as $key => $val) $this->$key = $val;
+    foreach(array_except($input, $fullAssocTransform) as $key => $val) {
+      if(is_array($val) && property_exists($this, $key))  $this->$key = array_merge($val, $this->$key);
+      else $this->$key = (isset($this->$key)) ? $this->$key :  $val;
+
+    }
   }
 
   private function initField($id, $field, $input) {

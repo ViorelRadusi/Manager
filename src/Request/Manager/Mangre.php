@@ -1,55 +1,35 @@
 <?php namespace Request\Manager;
 
-use Request\Manager\Interfaces\ManagerInterface,
-    Request\Manager\Exceptions\EmptyInputException,
-    Request\Manager\Exceptions\EmptyFillableException,
-    App;
+use Request\Manager\Interfaces\ManagerInterface;
 
 abstract class Mangre extends MangreTraversal implements ManagerInterface {
-
-  protected $instance, $selectedModel;
-
-  public $fillabel = null;
 
   public function __construct(StorageGuard $guard) {
     method_exists($this, "beforeConstruct") && $this->beforeConstruct();
 
-    $this->selectedModel = $this->setModel();
-    property_exists($this, "model") && $this->selectedModel = $this->model;
     $this->listOfKeys = BindedManagerKey::getInstance();
 
-    $this->instance      = App::make($this->selectedModel);
-
-    $this->fillable      = $this->instance->getFillable();
-    property_exists($this, "fill")  && $this->fillable = $this->fill;
-    if(empty($this->fillable)) throw new EmptyFillableException();
-
     parent::__construct($guard);
-
-    $this->transformArgs = (object) $this->transformArgs;
 
     method_exists($this, "afterConstruct") && $this->afterConstruct();
   }
 
-  public function getInstance(){
-    return $this->instance;
-  }
 
   public function find($id, $relationships = []) {
     return $this->_findBranch($relationships)->find($id);
   }
 
-  public function with(array $relationships){
+  public function with(array $relationships) {
     $this->instance = $this->instance->with($relationships);
     return $this;
   }
 
-  public function onlyTrashed(){
+  public function onlyTrashed() {
     $this->instance = $this->instance->onlyTrashed();
     return $this;
   }
 
-  public function withTrashed(){
+  public function withTrashed() {
     $this->instance = $this->instance->withTrashed();
     return $this;
   }
@@ -69,12 +49,11 @@ abstract class Mangre extends MangreTraversal implements ManagerInterface {
   public function create(array $input) {
 
     $input = $this->sanitize($input);
-    $obj = json_decode(json_encode($input));
+    $obj = $this->obj($input);
 
     method_exists($this, "beforeCreate") && $this->beforeCreate($obj);
 
     $data  = $this->getData($input);
-
 
 
     $this->setBindInput("Create", $input);
@@ -96,15 +75,17 @@ abstract class Mangre extends MangreTraversal implements ManagerInterface {
   public function update(array $input, $id) {
 
     $input = $this->sanitize($input);
-    $obj = json_decode(json_encode($input));
+    $obj = $this->obj($input);
 
     $entry = in_array("SoftDeletingTrait", class_uses( get_class($this->instance)))
       ? $this->withTrashed()->find($id)
       : $this->find($id) ;
 
+
     method_exists($this, "beforeUpdate") && $this->beforeUpdate($obj, $entry);
 
     $data = $this->getData($input, $id);
+
 
     $this->setBindInput("Update", $input);
     if(!is_null($this->bindManagerUpdate))  $this->bind("Update", $this->bindManagerUpdate, $entry);
@@ -162,11 +143,6 @@ abstract class Mangre extends MangreTraversal implements ManagerInterface {
     });
   }
 
-  private function setModel() {
-    $split = explode('\\',get_called_class());
-    $subclass = "\\" . end($split);
-    return str_replace("Manager", "",$subclass);
-  }
 
   private function _findBranch($relationships = []){
       return ($this->root)
@@ -176,6 +152,10 @@ abstract class Mangre extends MangreTraversal implements ManagerInterface {
 
   public function arr($obj) {
     return json_decode(json_encode($obj), true);
+  }
+
+  public function obj($arr) {
+    return json_decode(json_encode($arr));
   }
 
 }

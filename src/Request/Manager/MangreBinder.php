@@ -1,9 +1,15 @@
 <?php namespace Request\Manager;
 
+use  Request\Manager\Exceptions\EmptyInputException;
+
 abstract class MangreBinder extends MangreValidation {
 
   protected $bindManagerCreate = null;
   protected $bindManagerUpdate = null;
+
+  public function __construct(StorageGuard $guard){
+    parent::__construct($guard);
+  }
 
   public function getInfo($key) {
     $key = ucfirst($key);

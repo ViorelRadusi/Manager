@@ -1,7 +1,7 @@
 <?php namespace Request\Manager;
 
 use  Request\Manager\Exceptions\ValidatorException,
-     Config, App, Redirect, Response;
+     Config, App, Redirect, Response, Input;
 
 class StorageGuard {
 
@@ -26,10 +26,14 @@ class StorageGuard {
   private function errorResponse() {
     App::error(function(ValidatorException $e) {
 
-      if($this->errorResponse && $this->errorResponse  === 'json') return Response::json($e->getErrors(), 403);
-      if($this->errorResponse && $this->errorResponse  === 'view') return Redirect::back()->withInput()->withErrors($e->getErrors());
+      $noArrayInput = array_filter(Input::all(), function($in) {
+          return !is_array($in);
+      });
 
-      if(Config::get("manager::errorResponse") === 'view') return Redirect::back()->withInput()->withErrors($e->getErrors());
+      if($this->errorResponse && $this->errorResponse  === 'json') return Response::json($e->getErrors(), 403);
+      if($this->errorResponse && $this->errorResponse  === 'view') return Redirect::back()->withInput($noArrayInput)->withErrors($e->getErrors());
+
+      if(Config::get("manager::errorResponse") === 'view') return Redirect::back()->withInput($noArrayInput)->withErrors($e->getErrors());
       if(Config::get("manager::errorResponse") === 'json') return Response::json($e->getErrors(), 403);
     });
 
