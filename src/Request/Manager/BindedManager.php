@@ -98,7 +98,6 @@ class BindedManager {
        $newBind  = $this->manager->bind($which, $bind, $relation);
        $this->manager->setBind($which, $newBind);
      }
-
   }
 
 }

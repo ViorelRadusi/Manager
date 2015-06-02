@@ -62,6 +62,7 @@ abstract class Mangre extends MangreTraversal implements ManagerInterface {
     $this->guard && $this->check($input);
     $entry = $this->instance->create($data);
 
+
     if(!is_null($this->bindManagerCreate))
       foreach($this->bindManagerCreate as $manager){
         if($manager  instanceof BindedManager)  $manager->create($entry);
@@ -150,12 +151,5 @@ abstract class Mangre extends MangreTraversal implements ManagerInterface {
          :  $this->instance->with($relationships);
   }
 
-  public function arr($obj) {
-    return json_decode(json_encode($obj), true);
-  }
-
-  public function obj($arr) {
-    return json_decode(json_encode($arr));
-  }
 
 }
