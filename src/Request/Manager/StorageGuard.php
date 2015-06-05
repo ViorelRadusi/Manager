@@ -27,7 +27,10 @@ class StorageGuard {
     App::error(function(ValidatorException $e) {
 
       $noArrayInput = array_filter(Input::all(), function($in) {
-          return !is_array($in);
+
+        if(!is_array($in)) return true;
+
+        return !is_int(key($in));
       });
 
       if($this->errorResponse && $this->errorResponse  === 'json') return Response::json($e->getErrors(), 403);
